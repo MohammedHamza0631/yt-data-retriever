@@ -41,7 +41,7 @@ function VideoCard({ video, index }: { video: any; index: number }) {
             animate={inView ? "show" : "hidden"}
             transition={{ duration: 0.2, delay: index * 0.05 }}
         >
-            <CardBorder className="group bg-card rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-red-100 dark:border-red-900/20 backdrop-blur-sm">
+            <CardBorder className="group bg-card rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
                 <div className="p-4">
                     <div className="relative overflow-hidden rounded-md">
                         <motion.img

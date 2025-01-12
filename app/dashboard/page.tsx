@@ -54,7 +54,7 @@ function PlaylistCard({ playlist, index }: { playlist: Playlist; index: number }
           animate={inView ? "show" : "hidden"}
           transition={{ duration: 0.4, delay: index * 0.1 }}
       >
-          <CardBorder className="group overflow-hidden hover:shadow-xl transition-all duration-300 dark:bg-gray-800/50 border border-red-100 dark:border-red-900/20 backdrop-blur-sm rounded-lg">
+          <CardBorder className="group overflow-hidden hover:shadow-xl transition-all duration-300 dark:bg-gray-800/50  backdrop-blur-sm rounded-lg">
               <div className="p-4">
                   <div className="relative overflow-hidden rounded-md">
                       <motion.img
