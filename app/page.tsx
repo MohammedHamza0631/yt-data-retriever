@@ -19,7 +19,8 @@ export default function Home() {
   }
 
   if (session) {
-    redirect("/dashboard");
+    window.location.replace("/dashboard");
+    // redirect("/dashboard");
   }
 
   return (
