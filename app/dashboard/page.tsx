@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { fetchPlaylists, fetchAllPlaylistItems } from "@/lib/youtube";
+import { fetchPlaylists } from "@/lib/youtube";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronRight, PlaySquare } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 interface Playlist {
   id: string;
@@ -22,25 +23,64 @@ interface Playlist {
   };
 }
 
-interface PlaylistItem {
-  snippet: {
-    title: string;
-    thumbnails: {
-      default: {
-        url: string;
-      };
-    };
-    resourceId: {
-      videoId: string;
-    };
-  };
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
+function PlaylistCard({ playlist, index }: { playlist: Playlist; index: number }) {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={item}
+      initial="hidden"
+      animate={inView ? "show" : "hidden"}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+    >
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 dark:bg-gray-800">
+        <div className="p-4">
+          <motion.img
+            src={playlist.snippet.thumbnails?.default?.url || ""}
+            alt={playlist.snippet.title || ""}
+            className="w-full h-48 object-cover rounded-md mb-4"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
+          />
+          <h2 className="text-xl font-semibold mb-2 line-clamp-1">
+            {playlist.snippet.title}
+          </h2>
+          <p className="text-muted-foreground mb-4 line-clamp-2">
+            {playlist.snippet.description}
+          </p>
+          <Link href={`/dashboard/${playlist.id}`}>
+            <Button className="w-full" variant="default">
+              View Videos
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    </motion.div>
+  );
 }
 
 export default function Dashboard() {
   const { data: session } = useSession();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
-  const [playlistItems, setPlaylistItems] = useState<PlaylistItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,27 +99,10 @@ export default function Dashboard() {
     loadPlaylists();
   }, [session]);
 
-  async function handlePlaylistClick(playlistId: string) {
-    if (session?.accessToken) {
-      setSelectedPlaylist(playlistId);
-      try {
-        const items = await fetchAllPlaylistItems(session.accessToken, playlistId);
-        setPlaylistItems(items || []);
-      } catch (error) {
-        console.error("Error fetching playlist items:", error);
-      }
-    }
-  }
-
   if (loading) {
     return (
-      <div className="p-8 space-y-4">
-        <Skeleton className="h-12 w-[250px]" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-[200px]" />
-          ))}
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
@@ -87,36 +110,43 @@ export default function Dashboard() {
   return (
     <>
       <Navbar />
-      <div className="pt-16 min-h-screen bg-background p-8">
-        <h1 className="text-4xl font-bold mb-8">Your YouTube Playlists</h1>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="pt-16 min-h-screen bg-background p-8"
+      >
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-4xl font-bold mb-8"
+        >
+          Your YouTube Playlists
+        </motion.h1>
 
         {playlists.length === 0 ? (
-          <p className="text-center">No playlists found for this account.</p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center text-muted-foreground"
+          >
+            No playlists found for this account.
+          </motion.p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {playlists.map((playlist) => (
-              <Card key={playlist.id} className="overflow-hidden">
-                <div className="p-4">
-                  <img
-                    src={playlist.snippet.thumbnails?.default?.url || ""}
-                    alt={playlist.snippet.title || ""}
-                    className="w-full h-48 object-cover rounded-md mb-4"
-                  />
-                  <h2 className="text-xl font-semibold mb-2">
-                    {playlist.snippet.title}
-                  </h2>
-                  <p className="text-muted-foreground mb-4 line-clamp-2">
-                    {playlist.snippet.description}
-                  </p>
-                  <Link href={`/dashboard/${playlist.id}`}>
-                    <Button className="w-full">View Videos</Button>
-                  </Link>
-                </div>
-              </Card>
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {playlists.map((playlist, index) => (
+              <PlaylistCard key={playlist.id} playlist={playlist} index={index} />
             ))}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </>
   );
 }
