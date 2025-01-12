@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { Youtube, PlayCircle } from "lucide-react";
+import { CardBorder } from "@/components/CardBorder";
 
 interface Playlist {
   id: string;
@@ -52,28 +54,32 @@ function PlaylistCard({ playlist, index }: { playlist: Playlist; index: number }
       animate={inView ? "show" : "hidden"}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 dark:bg-gray-800">
+      <CardBorder className="group overflow-hidden hover:shadow-xl transition-all duration-300 dark:bg-gray-800/50 border border-red-100 dark:border-red-800/30 backdrop-blur-sm rounded-lg">
         <div className="p-4">
-          <motion.img
-            src={playlist.snippet.thumbnails?.default?.url || ""}
-            alt={playlist.snippet.title || ""}
-            className="w-full h-48 object-cover rounded-md mb-4"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          />
-          <h2 className="text-xl font-semibold mb-2 line-clamp-1">
+          <div className="relative overflow-hidden rounded-md">
+            <motion.img
+              src={playlist.snippet.thumbnails?.default?.url || ""}
+              alt={playlist.snippet.title || ""}
+              className="w-full h-48 object-cover rounded-md mb-4 transform transition-transform duration-300"
+              whileHover={{ scale: 1.05 }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <PlayCircle className="absolute bottom-6 right-6 w-10 h-10 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2 line-clamp-1 bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-rose-500 dark:from-red-500 dark:to-rose-400">
             {playlist.snippet.title}
           </h2>
           <p className="text-muted-foreground mb-4 line-clamp-2">
-            {playlist.snippet.description}
+            {playlist.snippet.description || "No description available"}
           </p>
           <Link href={`/dashboard/${playlist.id}`}>
-            <Button className="w-full" variant="default">
+            <Button className="w-full bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-700 hover:to-rose-600 dark:from-red-500 dark:to-rose-400 text-white shadow-lg group">
+              <Youtube className="mr-2 h-4 w-4" />
               View Videos
             </Button>
           </Link>
         </div>
-      </Card>
+      </CardBorder>
     </motion.div>
   );
 }

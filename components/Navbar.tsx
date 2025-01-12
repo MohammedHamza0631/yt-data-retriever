@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ModeToggle } from "./ModeToggle";
 
 
 export default function Navbar() {
@@ -70,10 +71,11 @@ export default function Navbar() {
                             Back
                         </Button>
                     )}
-                    
+
                     <Link href="/channel">
                         <Button variant="ghost">Search by Channel</Button>
                     </Link>
+                    <ModeToggle />
                     <Button variant="outline" onClick={handleSignOut}>
                         Logout
                     </Button>
@@ -92,7 +94,7 @@ export default function Navbar() {
                     )}
                 </div>
                 <div className="flex md:hidden items-center gap-4">
-                    
+                    <ModeToggle />
                     <button
                         className="md:hidden text-primary"
                         onClick={() => setMenuOpen((prev) => !prev)}
