@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { PlayCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -25,7 +26,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500">
       <div className="text-center space-y-6 p-8 bg-white rounded-xl shadow-2xl">
         <div className="flex justify-center">
-          <PlayCircleIcon className="h-16 w-16 text-red-600" />
+          <Image src="/logo.png" width={100} height={100} alt="Logo" />
         </div>
         <h1 className="text-4xl font-bold text-gray-900">
           YouTube Playlist Retriever

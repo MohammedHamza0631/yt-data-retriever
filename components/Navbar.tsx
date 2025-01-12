@@ -4,11 +4,13 @@ import { useSession, signOut } from "next-auth/react";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThemeToggle } from "./Themetoggle";
+
+import { ModeToggle } from "./ModeToggle";
 
 export default function Navbar() {
     const { data: session } = useSession();
@@ -24,11 +26,13 @@ export default function Navbar() {
         >
             <div className="flex justify-between items-center max-w-7xl mx-auto">
                 <Link href="/dashboard">
+
                     <motion.h1
                         whileHover={{ scale: 1.05 }}
-                        className="text-xl font-bold text-primary"
+                        className="flex items-center gap-2 text-xl font-bold text-primary"
                     >
-                        YouTube Retriever
+                        <Image src="/logo.png" width={50} height={10} alt="Logo" />
+                        YT Data Retriever
                     </motion.h1>
                 </Link>
 
@@ -41,7 +45,7 @@ export default function Navbar() {
                             Back
                         </Button>
                     )}
-                    <ThemeToggle />
+                    <ModeToggle />
                     <Button variant="outline" onClick={() => signOut({ callbackUrl: "/" })}>
                         Logout
                     </Button>
@@ -54,13 +58,15 @@ export default function Navbar() {
                         </motion.div>
                     )}
                 </div>
-
-                <button
-                    className="md:hidden text-primary"
-                    onClick={() => setMenuOpen((prev) => !prev)}
-                >
-                    <Menu className="h-6 w-6" />
-                </button>
+                <div className="flex md:hidden items-center gap-4">
+                    <ModeToggle />
+                    <button
+                        className="md:hidden text-primary"
+                        onClick={() => setMenuOpen((prev) => !prev)}
+                    >
+                        <Menu className="h-6 w-6" />
+                    </button>
+                </div>
             </div>
 
             <AnimatePresence>
@@ -91,7 +97,7 @@ export default function Navbar() {
                                     Back
                                 </Button>
                             )}
-                            <ThemeToggle />
+
                             <Button
                                 variant="outline"
                                 className="w-full"

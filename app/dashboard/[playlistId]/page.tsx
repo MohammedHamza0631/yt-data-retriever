@@ -28,7 +28,7 @@ const item = {
 function VideoCard({ video, index }: { video: any; index: number }) {
     const { ref, inView } = useInView({
         triggerOnce: true,
-        threshold: 0.8
+        threshold: 0.01
     });
 
     return (
@@ -37,7 +37,7 @@ function VideoCard({ video, index }: { video: any; index: number }) {
             variants={item}
             initial="hidden"
             animate={inView ? "show" : "hidden"}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
+            transition={{ duration: 0.3, delay: index * 0.01 }}
             className="bg-card rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
         >
             <div className="p-4">
@@ -107,13 +107,13 @@ export default function PlaylistPage({ params }: { params: { playlistId: string 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="pt-16 p-8"
+                transition={{ duration: 0.4 }}
+                className="pt-16 p-8 mt-4"
             >
                 <motion.h1
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
                     className="text-2xl font-bold mb-6"
                 >
                     Playlist Videos
