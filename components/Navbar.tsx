@@ -6,16 +6,42 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { ModeToggle } from "./ModeToggle";
 
 export default function Navbar() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const pathname = usePathname();
+    const router = useRouter();
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleSignOut = async () => {
+        await signOut({
+            redirect: true,
+            callbackUrl: "/"
+        });
+    };
+
+    const handleBack = () => {
+        router.back();
+    };
+
+    if (status === "loading") {
+        // return a loading skeleton for the navbar
+        return (
+            <nav className="bg-background/80 backdrop-blur-md shadow-md p-4 fixed w-full top-0 z-10">
+                <div className="flex justify-between items-center max-w-7xl mx-auto">
+                    <h1 className="flex items-center gap-2 text-xl font-bold text-primary">
+                        <Image src="/logo.png" width={50} height={10} alt="Logo" />
+                        YT Data Retriever
+                    </h1>
+                </div>
+            </nav>
+        );
+    }
 
     return (
         <motion.nav
@@ -46,14 +72,19 @@ export default function Navbar() {
                         </Button>
                     )}
                     <ModeToggle />
-                    <Button variant="outline" onClick={() => signOut({ callbackUrl: "/" })}>
+                    <Button variant="outline" onClick={handleSignOut}>
                         Logout
                     </Button>
-                    {session && (
+                    {session?.user && (
                         <motion.div whileHover={{ scale: 1.1 }}>
                             <Avatar>
-                                <AvatarImage src={session.user?.image || ""} alt="User Avatar" />
-                                <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
+                                <AvatarImage
+                                    src={session.user.image || ""}
+                                    alt={`${session.user.name}'s Avatar`}
+                                />
+                                <AvatarFallback>
+                                    {session.user.name?.[0]?.toUpperCase() || '?'}
+                                </AvatarFallback>
                             </Avatar>
                         </motion.div>
                     )}
@@ -92,7 +123,10 @@ export default function Navbar() {
                                 <Button
                                     variant="ghost"
                                     className="w-full"
-                                    onClick={() => history.back()}
+                                    onClick={() => {
+                                        handleBack();
+                                        setMenuOpen(false);
+                                    }}
                                 >
                                     Back
                                 </Button>
@@ -102,22 +136,26 @@ export default function Navbar() {
                                 variant="outline"
                                 className="w-full"
                                 onClick={() => {
-                                    signOut({ callbackUrl: "/" });
+                                    handleSignOut();
                                     setMenuOpen(false);
                                 }}
                             >
                                 Logout
                             </Button>
-                            {session && (
+                            {session?.user && (
                                 <div className="flex items-center gap-2 p-2">
                                     <Avatar>
                                         <AvatarImage
-                                            src={session.user?.image || ""}
-                                            alt="User Avatar"
+                                            src={session.user.image || ""}
+                                            alt={`${session.user.name}'s Avatar`}
                                         />
-                                        <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
+                                        <AvatarFallback>
+                                            {session.user.name?.[0]?.toUpperCase() || '?'}
+                                        </AvatarFallback>
                                     </Avatar>
-                                    <span className="text-sm font-medium">{session.user?.name}</span>
+                                    <span className="text-sm font-medium">
+                                        {session.user.name}
+                                    </span>
                                 </div>
                             )}
                         </div>
