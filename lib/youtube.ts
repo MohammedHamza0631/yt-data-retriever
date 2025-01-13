@@ -18,7 +18,11 @@ export async function fetchPlaylists(accessToken: string) {
   return response.json();
 }
 
-export async function fetchAllPlaylistItems(accessToken: string, playlistId: string) {
+// Fetch all playlist items using an access token (authenticated requests)
+export async function fetchAllPlaylistItemsWithAccessToken(
+  accessToken: string,
+  playlistId: string
+) {
   let videos: any[] = [];
   let nextPageToken = "";
 
@@ -30,6 +34,28 @@ export async function fetchAllPlaylistItems(accessToken: string, playlistId: str
           Authorization: `Bearer ${accessToken}`,
         },
       }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error fetching playlist items: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    videos = videos.concat(data.items || []);
+    nextPageToken = data.nextPageToken || "";
+  } while (nextPageToken);
+
+  return videos;
+}
+
+// Fetch all playlist items using an API key (unauthenticated requests)
+export async function fetchAllPlaylistItems(playlistId: string, apiKey: string) {
+  let videos: any[] = [];
+  let nextPageToken = "";
+
+  do {
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&pageToken=${nextPageToken}&key=${apiKey}`
     );
 
     if (!response.ok) {

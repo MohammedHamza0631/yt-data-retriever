@@ -1,6 +1,7 @@
 // app/api/auth/auth.config.ts
 import { NextAuthOptions } from "next-auth";
 import Google from "next-auth/providers/google";
+import { sql } from "@/app/db/actions";
 
 export const authConfig: NextAuthOptions = {
   providers: [
@@ -20,42 +21,26 @@ export const authConfig: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
+        // Save the access token to the database
+        const expiryDate = new Date(Date.now() + account.expires_at! * 1000);
+        await sql`
+          INSERT INTO users (email, google_id, access_token, refresh_token, token_expiry, name)
+          VALUES (${token.email}, ${account.providerAccountId}, ${account.access_token}, ${account.refresh_token}, ${expiryDate}, ${token.name})
+          ON CONFLICT (google_id) DO UPDATE
+          SET access_token = EXCLUDED.access_token,
+              refresh_token = EXCLUDED.refresh_token,
+              token_expiry = EXCLUDED.token_expiry;
+        `;
+
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
-        token.expiresAt = account.expires_at;
+        token.expiresAt = expiryDate.getTime();
       }
-      
-      if (token.expiresAt && Date.now() >= (token.expiresAt as number * 1000)) {
-        try {
-          const response = await fetch('https://oauth2.googleapis.com/token', {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-              client_id: process.env.GOOGLE_CLIENT_ID!,
-              client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-              grant_type: 'refresh_token',
-              refresh_token: token.refreshToken as string,
-            }),
-            method: 'POST',
-          });
 
-          const tokens = await response.json();
-          if (!response.ok) throw tokens;
-
-          return {
-            ...token,
-            accessToken: tokens.access_token,
-            expiresAt: Math.floor(Date.now() / 1000 + tokens.expires_in),
-          };
-        } catch (error) {
-          console.error('Error refreshing access token', error);
-          return { ...token, error: 'RefreshAccessTokenError' };
-        }
-      }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.error = token.error;
       return session;
     },
   },

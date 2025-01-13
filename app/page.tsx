@@ -10,7 +10,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function Home() {
   const { data: session, status } = useSession();
-  console.log(session);
+ 
 
   if (status === "loading") {
     return (

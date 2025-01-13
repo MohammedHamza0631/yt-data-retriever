@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { fetchAllPlaylistItems } from "@/lib/youtube";
+import { fetchAllPlaylistItemsWithAccessToken } from "@/lib/youtube";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -80,7 +80,7 @@ export default function PlaylistPage({ params }: { params: { playlistId: string 
         async function loadVideos() {
             try {
                 if (session?.accessToken) {
-                    const fetchedVideos = await fetchAllPlaylistItems(session.accessToken, params.playlistId);
+                    const fetchedVideos = await fetchAllPlaylistItemsWithAccessToken(session.accessToken, params.playlistId);
                     setVideos(fetchedVideos);
                 }
             } catch (error) {
